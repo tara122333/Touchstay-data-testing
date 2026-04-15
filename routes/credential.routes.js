@@ -9,10 +9,7 @@ userRouter.get("/:id", async (req, res) => {
     const responseData = await fetchTouchStayGuideResponse(pageUrl);
     console.log("res", responseData);
 
-    return res.status(200).json({
-      success: true,
-      data: responseData,
-    });
+    return res.status(200).json({responseData});
   } catch (error) {
     res.status(500).send({
       success: false,
