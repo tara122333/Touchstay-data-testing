@@ -1,7 +1,7 @@
 import axios from "axios";
 import { ShowHandleLoggerProps } from "./types";
 
-const apiUrl = 'https://portal.welcomescreen.com/api';
+const apiUrl = 'https://portal-uat.welcomescreen.com/api';
 export default class LoggerService {
   showLogger = async (params: ShowHandleLoggerProps): Promise<void> => {
     try {

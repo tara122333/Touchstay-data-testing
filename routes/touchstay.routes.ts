@@ -15,7 +15,7 @@ touchStayRouter.get('/:id', async (req: Request, res: Response) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     await loggerService.showLogger({
-      error: `Error in creating short url: Error:- ${JSON.stringify(error)}`,
+      error: `Error in touchStayRouter: Error:- ${JSON.stringify(error)}`,
       fileName: currentFileName,
       method: 'touchStayRouter.get',
       inputMetaData: { ...req.params },
