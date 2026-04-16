@@ -4,4 +4,14 @@ export type ShowHandleLoggerProps = {
   fileName?: string;
   inputMetaData?: Record<string, unknown>;
   method?: string;
+  logType?: LogType;
+  message?: string;
 };
+
+export enum LogType {
+  INFO = 'info',
+  DEBUG = 'debug',
+  ERROR = 'error',
+  WARN = 'warn',
+  CRITICAL = 'critical',
+}
