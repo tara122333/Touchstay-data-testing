@@ -1,13 +1,13 @@
-const puppeteer = require('puppeteer');
+import puppeteer, { Browser, HTTPResponse } from 'puppeteer';
 
-const fetchTouchStayGuideResponse = async (
-  touchStayGuidebookUrl,
-) => {
+export const fetchTouchStayGuideResponse = async (
+  touchStayGuidebookUrl: string,
+): Promise<unknown | null> => {
   if (!touchStayGuidebookUrl) {
     throw new Error('touchStayGuidebookUrl is required');
   }
 
-  let browser = null;
+  let browser: Browser | null = null;
   try {
     browser = await puppeteer.launch({
       headless: true,
@@ -26,11 +26,11 @@ const fetchTouchStayGuideResponse = async (
     );
     await page.setViewport({ width: 1280, height: 800 });
 
-    const timeoutMs = 2 * 60 * 1000; // 2 minutes timeout
+    const timeoutMs = 3 * 60 * 1000;
 
-    let resolveResponse;
-    let rejectResponse;
-    const capturedResponse = new Promise((resolve, reject) => {
+    let resolveResponse!: (value: unknown) => void;
+    let rejectResponse!: (reason?: unknown) => void;
+    const capturedResponse = new Promise<unknown>((resolve, reject) => {
       resolveResponse = resolve;
       rejectResponse = reject;
     });
@@ -39,7 +39,7 @@ const fetchTouchStayGuideResponse = async (
       rejectResponse(new Error('Timed out waiting for TouchStay v2api response'));
     }, timeoutMs);
 
-    const onResponse = async (response) => {
+    const onResponse = async (response: HTTPResponse): Promise<void> => {
       try {
         const url = response.url();
         if (
@@ -51,11 +51,12 @@ const fetchTouchStayGuideResponse = async (
           resolveResponse(json);
         }
       } catch (err) {
-        console.error(`fetchTouchStayGuideResponse: failed parsing response ${err?.message}`);
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`fetchTouchStayGuideResponse: failed parsing response ${message}`);
       }
     };
 
-    page.on('response', (response) => {
+    page.on('response', (response: HTTPResponse) => {
       onResponse(response).catch(() => undefined);
     });
 
@@ -70,19 +71,15 @@ const fetchTouchStayGuideResponse = async (
       clearTimeout(timeoutHandle);
     }
   } catch (error) {
-    console.error(
-      `fetchTouchStayGuideResponse failed for url=${touchStayGuidebookUrl}: ${(error)?.message}`,
-    );
     return null;
   } finally {
     if (browser) {
       try {
         await browser.close();
       } catch (closeErr) {
-        console.error(`fetchTouchStayGuideResponse: failed closing browser ${(closeErr)?.message}, Error: ${JSON.stringify(closeErr)}`);
+        const message = closeErr instanceof Error ? closeErr.message : String(closeErr);
+        throw new Error(`fetchTouchStayGuideResponse: failed closing browser ${message}, Error: ${JSON.stringify(closeErr)}`);
       }
     }
   }
-}
-
-module.exports={fetchTouchStayGuideResponse}
+};
